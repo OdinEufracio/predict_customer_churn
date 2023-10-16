@@ -7,6 +7,7 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.model_selection import train_test_split
 
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 sns.set()
@@ -157,18 +158,63 @@ def encoder_helper(
     return df
 
 
-def perform_feature_engineering(df, response):
-    '''
-    input:
-              df: pandas dataframe
-              response: string of response name [optional argument that could be used for naming variables or index y column]
+def perform_feature_engineering(
+        df: pd.DataFrame,
+        categorial_columns:  list,
+        keep_cols: list,
+        response: str = "Churn",
+) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+    """perform feature engineering on the dataframe
 
-    output:
-              X_train: X training data
-              X_test: X testing data
-              y_train: y training data
-              y_test: y testing data
-    '''
+    Parameters
+    ----------
+    df : pd.DataFrame
+        pandas dataframe containing the data
+    categorial_columns : list
+        list of tuples containing  (categorial column name,  new column name)
+    keep_cols : list
+        list of columns to keep in the dataframe
+    response : str
+        response column name (default is "Churn")
+
+    Returns
+    -------
+    X_train : pd.DataFrame
+        pandas dataframe containing the training data
+    X_test : pd.DataFrame
+        pandas dataframe containing the testing data
+    y_train : pd.DataFrame
+        pandas dataframe containing the training response data
+    y_test : pd.DataFrame
+        pandas dataframe containing the testing response data
+
+    Raises
+    ------
+    ValueError
+        if required columns are not found in the dataframe
+    """
+
+    category_columns = [col[0] for col in categorial_columns]
+    new_column_names = [col[1] for col in categorial_columns]
+    try:
+        df = encoder_helper(
+            df.copy(),
+            category_columns,
+            new_column_names,
+        )
+    except ValueError as err:
+        raise err
+
+    X = df[keep_cols]
+    y = df[response]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.3,
+        random_state=42
+    )
+    return X_train, X_test, y_train, y_test
 
 
 def classification_report_image(y_train,
