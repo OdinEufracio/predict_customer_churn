@@ -94,20 +94,67 @@ def perform_eda(df: pd.DataFrame) -> None:
     plt.savefig("./images/eda_corr_heatmap.png")
 
 
-def encoder_helper(df, category_lst, response):
-    '''
-    helper function to turn each categorical column into a new column with
-    propotion of churn for each category - associated with cell 15 from the notebook
+def target_encoding(
+        df: pd.DataFrame,
+        column_name: str,
+        target_name: str = 'Churn',
+) -> pd.Series:
+    """perform target encoding on given column
 
-    input:
-            df: pandas dataframe
-            category_lst: list of columns that contain categorical features
-            response: string of response name [optional argument that could be used for naming variables or index y column]
+    Parameters
+    ----------
+    df : pd.DataFrame
+        pandas dataframe containing the data
+    column_name : str
+        column name to perform target encoding
+    target_name : str
+        target column name
 
-    output:
-            df: pandas dataframe with new columns for
-    '''
-    pass
+    Returns
+    -------
+    df : pd.Series
+        pandas series containing the target encoded column
+    """
+
+    encoding = df.groupby(column_name)[target_name].mean()
+    return df[column_name].map(encoding)
+
+
+def encoder_helper(
+        df: pd.DataFrame,
+        category_lst: list,
+        response: list,
+) -> pd.DataFrame:
+    """helper function to perform target encoding on given column
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        pandas dataframe containing the data
+    category_lst : list
+        list of columns to perform target encoding
+    response : list
+        list of new column names for target encoded columns
+
+    Raises
+    ------
+    ValueError
+        if required columns are not found in the dataframe
+
+    Returns
+    -------
+    df : pd.DataFrame
+        pandas dataframe containing the data with target encoded columns
+    """
+
+    for col in category_lst:
+        if col not in df.columns:
+            raise ValueError(f"Expected column '{col}' not found in DataFrame")
+
+    for col, new_col in zip(category_lst, response):
+        df[new_col] = target_encoding(df, col)
+
+    return df
 
 
 def perform_feature_engineering(df, response):

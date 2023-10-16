@@ -71,10 +71,53 @@ def test_eda(perform_eda: Callable):
 
 
 
-def test_encoder_helper(encoder_helper):
-    '''
-    test encoder helper
-    '''
+def test_encoder_helper(encoder_helper: Callable):
+    """test for encoder_helper function
+
+    Parameters
+    ----------
+    encoder_helper : Callable
+        function to perform exploratory data analysis
+
+    Raises
+    ------
+    err: FileNotFoundError
+        File not found error while reading dataframe
+    err: ValueError
+        missing required columns while performing encoding
+    """
+
+    category_columns = [
+        "Gender",
+        "Education_Level",
+        "Marital_Status",
+        "Income_Category",
+        "Card_Category",
+    ]
+    new_column_names = [
+        "Gender_Churn",
+        "Education_Level_Churn",
+        "Marital_Status_Churn",
+        "Income_Category_Churn",
+        "Card_Category_Churn",
+    ]
+
+    try:
+        df = cls.import_data("./data/bank_data.csv")
+        df = cls.add_chrun_column(df.copy())
+
+        df = encoder_helper(
+            df.copy(),
+            category_columns,
+            new_column_names,
+        )
+        logging.info("Testing encoder_helper: SUCCESS")
+    except FileNotFoundError as err:
+        logging.error("Testing encoder_helper: The file wasn't found")
+        raise err
+    except ValueError as err:
+        logging.error("Testing encoder_helper: %s", err)
+        raise err
 
 
 def test_perform_feature_engineering(perform_feature_engineering):
@@ -92,3 +135,4 @@ def test_train_models(train_models):
 if __name__ == "__main__":
     test_import(cls.import_data)
     test_eda(cls.perform_eda)
+    test_encoder_helper(cls.encoder_helper)
