@@ -124,7 +124,7 @@ def target_encoding(
 def encoder_helper(
         df: pd.DataFrame,
         category_lst: list,
-        response: list,
+        response: str = "Churn",
 ) -> pd.DataFrame:
     """helper function to perform target encoding on given column
 
@@ -133,9 +133,9 @@ def encoder_helper(
     df : pd.DataFrame
         pandas dataframe containing the data
     category_lst : list
-        list of columns to perform target encoding
-    response : list
-        list of new column names for target encoded columns
+        list of tuples containing  (categorial column name,  new column name)
+    response : str
+        response column name (default is "Churn")
 
     Raises
     ------
@@ -148,12 +148,15 @@ def encoder_helper(
         pandas dataframe containing the data with target encoded columns
     """
 
-    for col in category_lst:
+    for col, _ in category_lst:
         if col not in df.columns:
             raise ValueError(f"Expected column '{col}' not found in DataFrame")
 
-    for col, new_col in zip(category_lst, response):
-        df[new_col] = target_encoding(df, col)
+    if response not in df.columns:
+        raise ValueError(f"Expected column '{response}' not found in DataFrame")
+
+    for col, new_col in category_lst:
+        df[new_col] = target_encoding(df, col, response)
 
     return df
 
@@ -194,13 +197,11 @@ def perform_feature_engineering(
         if required columns are not found in the dataframe
     """
 
-    category_columns = [col[0] for col in categorial_columns]
-    new_column_names = [col[1] for col in categorial_columns]
     try:
         df = encoder_helper(
             df.copy(),
-            category_columns,
-            new_column_names,
+            categorial_columns,
+            response
         )
     except ValueError as err:
         raise err
