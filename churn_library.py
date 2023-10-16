@@ -3,9 +3,13 @@
 
 # import libraries
 import os
+
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+sns.set()
 
 
 
@@ -26,16 +30,68 @@ def import_data(pth: str) -> pd.DataFrame:
     return data_df
 
 
-def perform_eda(df):
-    '''
-    perform eda on df and save figures to images folder
-    input:
-            df: pandas dataframe
+def add_chrun_column(df: pd.DataFrame) -> pd.DataFrame:
+    """ add churn column to the dataframe
 
-    output:
-            None
-    '''
-    pass
+    Parameters
+    ----------
+    df : pd.DataFrame
+        pandas dataframe containing the data
+    """
+    df['Churn'] = df['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1
+        )
+    return df
+
+
+
+def perform_eda(df: pd.DataFrame) -> None:
+    """Perform Exploratory Data Analysis and save figures to ./images folder
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        pandas dataframe containing the data
+
+    Raises
+    ------
+    ValueError
+        if required columns are not found in the dataframe
+    """
+
+    required_columns = [
+        "Churn",
+        "Customer_Age",
+        "Marital_Status",
+        "Total_Trans_Ct",
+        ]
+    for col in required_columns:
+        if col not in df.columns:
+            raise ValueError(f"Expected column '{col}' not found in DataFrame")
+    
+    if not os.path.exists("images"):
+        os.mkdir("images")
+    
+    plt.figure(figsize=(20,10)) 
+    df["Churn"].hist()
+    plt.savefig("./images/eda_churn.png")
+
+    plt.figure(figsize=(20,10)) 
+    df["Customer_Age"].hist()
+    plt.savefig("./images/eda_customer_age.png")
+
+    plt.figure(figsize=(20,10)) 
+    df["Marital_Status"].value_counts("normalize").plot(kind="bar")
+    plt.savefig("./images/eda_marital_status.png")
+
+    plt.figure(figsize=(20,10))
+    sns.histplot(df["Total_Trans_Ct"], stat="density", kde=True)
+    plt.savefig("./images/eda_total_trans_ct.png")
+
+    plt.figure(figsize=(20,10))
+    df_only_numeric = df.select_dtypes(include=["float64", "int64"]).corr()
+    sns.heatmap(df_only_numeric, annot=False, cmap="Dark2_r", linewidths = 2)
+    plt.savefig("./images/eda_corr_heatmap.png")
 
 
 def encoder_helper(df, category_lst, response):
