@@ -5,9 +5,11 @@
 import os
 import joblib
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
@@ -246,18 +248,49 @@ def classification_report_image(y_train,
     pass
 
 
-def feature_importance_plot(model, X_data, output_pth):
-    '''
-    creates and stores the feature importances in pth
-    input:
-            model: model object containing feature_importances_
-            X_data: pandas dataframe of X values
-            output_pth: path to store the figure
+def feature_importance_plot(
+        model: RandomForestClassifier,
+        X_data: pd.DataFrame,
+        output_pth: str
+) -> None:
+    """plot feature importance and save to output_pth
 
-    output:
-             None
-    '''
-    pass
+    Parameters
+    ----------
+    model : RandomForestClassifier
+        trained random forest classifier model
+    X_data : pd.DataFrame
+        pandas dataframe containing the data
+    output_pth : str
+        path to save the plot
+
+    Returns
+    -------
+    None
+    """
+
+    if not isinstance(model, RandomForestClassifier):
+        raise TypeError("model should be a RandomForestClassifier")
+
+    assert not X_data.columns.empty, \
+        "X_data columns should not be empty"
+    assert len(X_data.columns) == len(model.feature_importances_), \
+        "X_data columns should be equal to model feature importances"
+
+
+    importances = model.feature_importances_
+
+    indices = np.argsort(importances)[::-1]
+    names = [X_data.columns[i] for i in indices]
+
+    plt.figure(figsize=(20, 5))
+    plt.title("Feature Importance")
+    plt.ylabel('Importance')
+    plt.bar(range(X_data.shape[1]), importances[indices])
+    plt.xticks(range(X_data.shape[1]), names, rotation=90)
+    plt.tight_layout()
+    plt.savefig(output_pth)
+
 
 
 def train_models(
