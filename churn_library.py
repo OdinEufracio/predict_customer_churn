@@ -3,11 +3,16 @@
 
 # import libraries
 import os
+import joblib
 
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import plot_roc_curve, classification_report
 
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 sns.set()
@@ -255,15 +260,93 @@ def feature_importance_plot(model, X_data, output_pth):
     pass
 
 
-def train_models(X_train, X_test, y_train, y_test):
-    '''
-    train, store model results: images + scores, and store models
-    input:
-              X_train: X training data
-              X_test: X testing data
-              y_train: y training data
-              y_test: y testing data
-    output:
-              None
-    '''
-    pass
+def train_models(
+        X_train: pd.DataFrame,
+        X_test: pd.DataFrame,
+        y_train: pd.Series,
+        y_test: pd.Series
+) -> None:
+    """train models and save roc curve to ../images/roc_curve.png
+     and models to ./models/rfc_model.pkl and ./models/lrc_model.pkl
+
+    Parameters
+    ----------
+    X_train : pd.DataFrame
+        pandas dataframe containing the training data
+    X_test : pd.DataFrame
+        pandas dataframe containing the testing data
+    y_train : pd.Series
+        pandas series containing the training response data
+    y_test : pd.Series
+        pandas series containing the testing response data
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    TypeError
+        if any of the input parameters are not of the expected type
+    AssertionError
+        if any of the input parameters are empty
+    """
+
+    if not isinstance(X_train, pd.DataFrame):
+        raise TypeError("X_train should be a pandas DataFrame")
+    if not isinstance(X_test, pd.DataFrame):
+        raise TypeError("X_test should be a pandas DataFrame")
+    if not isinstance(y_train, pd.Series):
+        raise TypeError("y_train should be a pandas Series")
+    if not isinstance(y_test, pd.Series):
+        raise TypeError("y_test should be a pandas Series")
+
+    assert not X_train.empty, "X_train should not be empty"
+    assert not X_test.empty, "X_test should not be empty"
+    assert not y_train.empty, "y_train should not be empty"
+    assert not y_test.empty, "y_test should not be empty"
+
+
+    # Random Forest Classifier
+    rfc = RandomForestClassifier(random_state=42)
+    param_grid = {
+        "n_estimators": [200, 500],
+        "max_features": ["auto", "sqrt"],
+        "max_depth": [4, 5, 100],
+        "criterion": ["gini", "entropy"]
+    }
+    cv_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
+    cv_rfc.fit(X_train, y_train)
+
+    # Logistic Regression Classifier
+    lrc = LogisticRegression(solver="lbfgs", max_iter=3000)
+    lrc.fit(X_train, y_train)
+
+    # Save models
+    if not os.path.exists("models"):
+        os.mkdir("models")
+    with open("./models/rfc_model.pkl", "wb") as model_file:
+        joblib.dump(cv_rfc.best_estimator_, model_file)
+    with open("./models/lrc_model.pkl", "wb") as model_file:
+        joblib.dump(lrc, model_file)
+
+    # Plotting ROC Curve
+    lrc_plot = plot_roc_curve(
+        lrc,
+        X_test,
+        y_test,
+    )
+
+    plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+
+    rfc_plot = plot_roc_curve(
+        cv_rfc.best_estimator_,
+        X_test,
+        y_test,
+        ax=ax,
+        alpha=0.8
+    )
+
+    lrc_plot.plot(ax=ax, alpha=0.8)
+    plt.savefig("./images/roc_curve.png")

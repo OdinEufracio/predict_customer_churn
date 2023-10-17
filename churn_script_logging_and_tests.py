@@ -166,9 +166,58 @@ def test_perform_feature_engineering(perform_feature_engineering):
 
 
 def test_train_models(train_models):
-    '''
-    test train_models
-    '''
+    try:
+        df = cls.import_data("./data/bank_data.csv")
+        df = cls.add_chrun_column(df.copy())
+
+        category_columns = [
+            ("Gender", "Gender_Churn"),
+            ("Education_Level", "Education_Level_Churn"),
+            ("Marital_Status", "Marital_Status_Churn"),
+            ("Income_Category", "Income_Category_Churn"),
+            ("Card_Category", "Card_Category_Churn"),
+        ]
+
+        keep_cols = [
+            "Customer_Age",
+            "Dependent_count",
+            "Months_on_book",
+            "Total_Relationship_Count",
+            "Months_Inactive_12_mon",
+            "Contacts_Count_12_mon",
+            "Credit_Limit",
+            "Total_Revolving_Bal",
+            "Avg_Open_To_Buy",
+            "Total_Amt_Chng_Q4_Q1",
+            "Total_Trans_Amt",
+            "Total_Trans_Ct",
+            "Total_Ct_Chng_Q4_Q1",
+            "Avg_Utilization_Ratio",
+            "Gender_Churn",
+            "Education_Level_Churn",
+            "Marital_Status_Churn",
+            "Income_Category_Churn",
+            "Card_Category_Churn",
+        ]
+
+        X_train, X_test, y_train, y_test = cls.perform_feature_engineering(
+            df.copy(),
+            category_columns,
+            keep_cols,
+        )
+
+        train_models(X_train, X_test, y_train, y_test)
+        logging.info("Testing train_models: SUCCESS")
+    except TypeError as err:
+        logging.error(
+            "Testing train_models: %s", err
+        )
+        raise err
+    except AssertionError as err:
+        logging.error(
+            "Testing train_models: %s", err
+        )
+        raise err
 
 
 if __name__ == "__main__":
@@ -176,3 +225,4 @@ if __name__ == "__main__":
     test_eda(cls.perform_eda)
     test_encoder_helper(cls.encoder_helper)
     test_perform_feature_engineering(cls.perform_feature_engineering)
+    test_train_models(cls.train_models)
