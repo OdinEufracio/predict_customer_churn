@@ -27,7 +27,7 @@ sns.set()
 
 
 def import_data(pth: str) -> pd.DataFrame:
-    """import data from a csv file
+    """import data from a csv file the Churn column is added to the dataframe
 
     Parameters
     ----------
@@ -40,21 +40,11 @@ def import_data(pth: str) -> pd.DataFrame:
         pandas dataframe containing the data
     """
     data_df = pd.read_csv(pth)
-    return data_df
 
-
-def add_churn_column(df: pd.DataFrame) -> pd.DataFrame:
-    """ add churn column to the dataframe
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        pandas dataframe containing the data
-    """
-    df["Churn"] = df["Attrition_Flag"].apply(
+    data_df["Churn"] = data_df["Attrition_Flag"].apply(
         lambda val: 0 if val == "Existing Customer" else 1
     )
-    return df
+    return data_df
 
 
 def perform_eda(df: pd.DataFrame) -> None:
@@ -104,6 +94,8 @@ def perform_eda(df: pd.DataFrame) -> None:
     df_only_numeric = df.select_dtypes(include=["float64", "int64"]).corr()
     sns.heatmap(df_only_numeric, annot=False, cmap="Dark2_r", linewidths=2)
     plt.savefig("./images/eda_corr_heatmap.png")
+    plt.clf()
+    plt.close()
 
 
 def target_encoding(
@@ -293,7 +285,7 @@ def classification_report_image(
     assert not y_test_preds_rf.empty, \
         "y_test_preds_rf should not be empty"
 
-    plt.rc("figure", figsize=(10, 10))
+    plt.figure(figsize=(8, 10))
 
     plt.text(
         0.01,
@@ -360,6 +352,8 @@ def classification_report_image(
         "./images/classification_report.png",
         bbox_inches="tight"
     )
+    plt.clf()
+    plt.close()
 
 
 def feature_importance_plot(
@@ -403,6 +397,8 @@ def feature_importance_plot(
     plt.xticks(range(X_data.shape[1]), names, rotation=90)
     plt.tight_layout()
     plt.savefig(output_pth)
+    plt.clf()
+    plt.close()
 
 
 def train_models(
@@ -494,3 +490,5 @@ def train_models(
 
     lrc_plot.plot(ax=ax, alpha=0.8)
     plt.savefig("./images/roc_curve.png")
+    plt.clf()
+    plt.close()

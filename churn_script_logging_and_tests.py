@@ -1,19 +1,27 @@
-import os
-import joblib
+"""
+Module to test churn_library.py
+
+Author: Odin Eufracio
+Date: Oct 2023
+"""
+
 import logging
 from typing import Callable
 
-import churn_library as cls
 import pandas as pd
+import joblib
+
+import churn_library as cls
 
 logging.basicConfig(
-    filename='./logs/churn_library.log',
+    filename="./logs/churn_library.log",
     level=logging.INFO,
-    filemode='w',
-    format='%(name)s - %(levelname)s - %(message)s')
+    filemode="w",
+    format="%(name)s - %(levelname)s - %(message)s"
+)
 
 
-def test_import(import_data: str):
+def test_import(import_data: Callable):
     """test for import_data function
 
     Parameters
@@ -54,15 +62,14 @@ def test_eda(perform_eda: Callable):
     Raises
     ------
     err: FileNotFoundError
-        File not found error while readint dataframe
-    err: ValueError 
+        File not found error while reading it dataframe
+    err: ValueError
         missing required columns while performing eda
     """
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_churn_column(df.copy())
-        
-        cls.perform_eda(df)
+
+        perform_eda(df)
         logging.info("Testing perform_eda: SUCCESS")
     except FileNotFoundError as err:
         logging.error("Testing perform_eda: The file wasn't found")
@@ -70,7 +77,6 @@ def test_eda(perform_eda: Callable):
     except ValueError as err:
         logging.error("Testing perform_eda: %s", err)
         raise err
-
 
 
 def test_encoder_helper(encoder_helper: Callable):
@@ -99,7 +105,6 @@ def test_encoder_helper(encoder_helper: Callable):
 
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_churn_column(df.copy())
 
         df = encoder_helper(
             df.copy(),
@@ -116,9 +121,18 @@ def test_encoder_helper(encoder_helper: Callable):
 
 
 def test_perform_feature_engineering(perform_feature_engineering):
-    '''
-    test perform_feature_engineering
-    '''
+    """ test for perform_feature_engineering function
+
+    Parameters
+    ----------
+    perform_feature_engineering : Callable
+        function to perform feature engineering
+
+    Raises
+    ------
+    err: ValueError
+        missing required columns while performing feature engineering
+    """
 
     category_columns = [
         ("Gender", "Gender_Churn"),
@@ -152,7 +166,6 @@ def test_perform_feature_engineering(perform_feature_engineering):
 
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_churn_column(df.copy())
 
         X_train, X_test, y_train, y_test = perform_feature_engineering(
             df.copy(),
@@ -168,9 +181,23 @@ def test_perform_feature_engineering(perform_feature_engineering):
 
 
 def test_train_models(train_models):
+    """ test for train_models function
+
+    Parameters
+    ----------
+    train_models : Callable
+        function to train models
+
+    Raises
+    ------
+    err: TypeError
+        missing required columns while performing feature engineering
+    err: AssertionError
+        missing required columns while performing feature engineering
+    """
+
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_churn_column(df.copy())
 
         category_columns = [
             ("Gender", "Gender_Churn"),
@@ -223,9 +250,22 @@ def test_train_models(train_models):
 
 
 def test_feature_importance_plot(feature_importance_plot: Callable):
+    """ test for feature_importance_plot function
+
+    Parameters
+    ----------
+    feature_importance_plot : Callable
+        function to plot feature importance
+
+    Raises
+    ------
+    err: TypeError
+        missing required columns while performing feature engineering
+    err: AssertionError
+        missing required columns while performing feature engineering
+    """
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_churn_column(df.copy())
 
         category_columns = [
             ("Gender", "Gender_Churn"),
@@ -263,7 +303,7 @@ def test_feature_importance_plot(feature_importance_plot: Callable):
             keep_cols,
         )
 
-        rfc_model = joblib.load('./models/rfc_model.pkl')
+        rfc_model = joblib.load("./models/rfc_model.pkl")
         print(type(rfc_model))
 
         feature_importance_plot(
@@ -285,10 +325,23 @@ def test_feature_importance_plot(feature_importance_plot: Callable):
 
 
 def test_classification_report_image(classification_report_image: Callable):
+    """ test for classification_report_image function
+
+    Parameters
+    ----------
+    classification_report_image : Callable
+        function to plot classification report
+
+    Raises
+    ------
+    err: TypeError
+        missing required columns while performing feature engineering
+    err: AssertionError
+        missing required columns while performing feature engineering
+    """
 
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_churn_column(df.copy())
 
         category_columns = [
             ("Gender", "Gender_Churn"),
@@ -326,8 +379,8 @@ def test_classification_report_image(classification_report_image: Callable):
             keep_cols,
         )
 
-        rfc_model = joblib.load('./models/rfc_model.pkl')
-        lrc_model = joblib.load('./models/lrc_model.pkl')
+        rfc_model = joblib.load("./models/rfc_model.pkl")
+        lrc_model = joblib.load("./models/lrc_model.pkl")
 
         y_train_preds_rfc = pd.Series(rfc_model.predict(X_train))
         y_test_preds_rfc = pd.Series(rfc_model.predict(X_test))
@@ -357,10 +410,10 @@ def test_classification_report_image(classification_report_image: Callable):
 
 
 if __name__ == "__main__":
-    #test_import(cls.import_data)
-    #test_eda(cls.perform_eda)
-    #test_encoder_helper(cls.encoder_helper)
-    #test_perform_feature_engineering(cls.perform_feature_engineering)
-    #test_train_models(cls.train_models)
-    #test_feature_importance_plot(cls.feature_importance_plot)
+    test_import(cls.import_data)
+    test_eda(cls.perform_eda)
+    test_encoder_helper(cls.encoder_helper)
+    test_perform_feature_engineering(cls.perform_feature_engineering)
+    test_train_models(cls.train_models)
+    test_feature_importance_plot(cls.feature_importance_plot)
     test_classification_report_image(cls.classification_report_image)
