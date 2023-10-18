@@ -4,7 +4,7 @@ Module to test churn_library.py
 Author: Odin Eufracio
 Date: Oct 2023
 """
-
+import os
 import logging
 from typing import Callable
 
@@ -55,12 +55,14 @@ def test_import(
         raise err
 
 
-def test_eda(perform_eda: Callable):
+def test_eda(
+        perform_eda: Callable[[pd.DataFrame], None]
+):
     """test for perform_eda function
 
     Parameters
     ----------
-    perform_eda : Callable
+    perform_eda : Callable[[pd.DataFrame], None]
         function to perform exploratory data analysis
 
     Raises
@@ -81,6 +83,20 @@ def test_eda(perform_eda: Callable):
     except ValueError as err:
         logging.error("Testing perform_eda: %s", err)
         raise err
+
+    try:
+        assert os.path.exists("./images/eda_churn.png"), \
+            "The file ./images/eda_churn.png was not generated"
+        assert os.path.exists("./images/eda_customer_age.png"), \
+            "The file ./images/eda_customer_age.png was not generated"
+        assert os.path.exists("./images/eda_marital_status.png"), \
+            "The file ./images/eda_marital_status.png was not generated"
+        assert os.path.exists("./images/eda_marital_status.png"), \
+            "The file ./images/eda_marital_status.png was not generated"
+    except AssertionError as err:
+        logging.error(
+            "Testing perform_eda: %s", err
+        )
 
 
 def test_encoder_helper(encoder_helper: Callable):
