@@ -410,7 +410,12 @@ def test_feature_importance_plot(
         raise err
 
 
-def test_classification_report_image(classification_report_image: Callable):
+def test_classification_report_image(
+        classification_report_image: Callable[
+            [pd.Series, pd.Series, pd.Series, pd.Series, pd.Series, pd.Series],
+            None
+        ]
+):
     """ test for classification_report_image function
 
     Parameters
@@ -493,6 +498,16 @@ def test_classification_report_image(classification_report_image: Callable):
         logging.error(
             "Testing classification_report_image: %s", err
         )
+        raise err
+
+    try:
+        assert os.path.exists("./images/classification_report.png"), \
+            "The file ./images/classification_report_train.png was not generated"
+    except AssertionError as err:
+        logging.error(
+            "Testing classification_report_image: %s", err
+        )
+        raise err
 
 
 if __name__ == "__main__":
