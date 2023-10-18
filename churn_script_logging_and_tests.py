@@ -233,7 +233,12 @@ def test_perform_feature_engineering(
         raise err
 
 
-def test_train_models(train_models):
+def test_train_models(
+        train_models: Callable[
+            [pd.DataFrame, pd.DataFrame, pd.Series, pd.Series],
+            None
+        ]
+):
     """ test for train_models function
 
     Parameters
@@ -295,6 +300,19 @@ def test_train_models(train_models):
             "Testing train_models: %s", err
         )
         raise err
+    except AssertionError as err:
+        logging.error(
+            "Testing train_models: %s", err
+        )
+        raise err
+
+    try:
+        assert os.path.exists("./models/rfc_model.pkl"), \
+            "The file ./models/rfc_model.pkl was not generated"
+        assert os.path.exists("./models/lrc_model.pkl"), \
+            "The file ./models/lrc_model.pkl was not generated"
+        assert os.path.exists("./images/roc_curve.png"), \
+            "The file ./images/roc_curve.png was not generated"
     except AssertionError as err:
         logging.error(
             "Testing train_models: %s", err
@@ -467,6 +485,6 @@ if __name__ == "__main__":
     test_eda(cls.perform_eda)
     test_encoder_helper(cls.encoder_helper)
     test_perform_feature_engineering(cls.perform_feature_engineering)
-    # test_train_models(cls.train_models)
+    test_train_models(cls.train_models)
     test_feature_importance_plot(cls.feature_importance_plot)
     test_classification_report_image(cls.classification_report_image)
