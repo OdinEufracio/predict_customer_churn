@@ -161,7 +161,3 @@ cython_debug/
 
 # Mac OS
 **/**/.DS_Store
-
-# Temporary ignore directories
-images/
-models/
