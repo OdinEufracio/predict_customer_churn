@@ -170,7 +170,7 @@ def perform_feature_engineering(
         categorial_columns: list,
         keep_cols: list,
         response: str = "Churn",
-) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
+) -> (pd.DataFrame, pd.DataFrame, pd.Series, pd.Series):
     """perform feature engineering on the dataframe
 
     Parameters
@@ -190,10 +190,10 @@ def perform_feature_engineering(
         pandas dataframe containing the training data
     X_test : pd.DataFrame
         pandas dataframe containing the testing data
-    y_train : pd.DataFrame
-        pandas dataframe containing the training response data
-    y_test : pd.DataFrame
-        pandas dataframe containing the testing response data
+    y_train : pd.Series
+        pandas series containing the training response data
+    y_test : pd.Series
+        pandas series containing the testing response data
 
     Raises
     ------

@@ -151,7 +151,12 @@ def test_encoder_helper(
 
 
 
-def test_perform_feature_engineering(perform_feature_engineering):
+def test_perform_feature_engineering(
+        perform_feature_engineering: Callable[
+            [pd.DataFrame, list, list, str],
+            tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]
+        ]
+):
     """ test for perform_feature_engineering function
 
     Parameters
@@ -162,6 +167,8 @@ def test_perform_feature_engineering(perform_feature_engineering):
     Raises
     ------
     err: ValueError
+        missing required columns while performing feature engineering
+    err: AssertionError
         missing required columns while performing feature engineering
     """
 
@@ -205,6 +212,21 @@ def test_perform_feature_engineering(perform_feature_engineering):
         )
         logging.info("Testing perform_feature_engineering: SUCCESS")
     except ValueError as err:
+        logging.error(
+            "Testing perform_feature_engineering: %s", err
+        )
+        raise err
+
+    try:
+        assert not X_train.empty, \
+            "The X_train dataframe is empty"
+        assert not X_test.empty, \
+            "The X_test dataframe is empty"
+        assert not y_train.empty, \
+            "The y_train dataframe is empty"
+        assert not y_test.empty, \
+            "The y_test dataframe is empty"
+    except AssertionError as err:
         logging.error(
             "Testing perform_feature_engineering: %s", err
         )
