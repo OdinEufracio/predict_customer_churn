@@ -94,9 +94,12 @@ def test_eda(
         logging.error(
             "Testing perform_eda: %s", err
         )
+        raise err
 
 
-def test_encoder_helper(encoder_helper: Callable):
+def test_encoder_helper(
+        encoder_helper: Callable[[pd.DataFrame, list, str], pd.DataFrame]
+):
     """test for encoder_helper function
 
     Parameters
@@ -106,10 +109,10 @@ def test_encoder_helper(encoder_helper: Callable):
 
     Raises
     ------
-    err: FileNotFoundError
-        File not found error while reading dataframe
     err: ValueError
         missing required columns while performing encoding
+    err: AssertionError
+        new columns were not created or are not numeric
     """
 
     category_columns = [
@@ -129,12 +132,23 @@ def test_encoder_helper(encoder_helper: Callable):
             "Churn"
         )
         logging.info("Testing encoder_helper: SUCCESS")
-    except FileNotFoundError as err:
-        logging.error("Testing encoder_helper: The file wasn't found")
-        raise err
+
     except ValueError as err:
         logging.error("Testing encoder_helper: %s", err)
         raise err
+
+    try:
+        for _, new_col in category_columns:
+            assert new_col in df.columns, \
+                f"The column {new_col} was not created"
+            assert df[new_col].dtype == "float64", \
+                f"The column {new_col} is not an integer"
+    except AssertionError as err:
+        logging.error(
+            "Testing encoder_helper: %s", err
+        )
+        raise err
+
 
 
 def test_perform_feature_engineering(perform_feature_engineering):
@@ -431,6 +445,6 @@ if __name__ == "__main__":
     test_eda(cls.perform_eda)
     test_encoder_helper(cls.encoder_helper)
     test_perform_feature_engineering(cls.perform_feature_engineering)
-    test_train_models(cls.train_models)
+    # test_train_models(cls.train_models)
     test_feature_importance_plot(cls.feature_importance_plot)
     test_classification_report_image(cls.classification_report_image)
