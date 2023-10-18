@@ -6,9 +6,10 @@ Date: Oct 2023
 """
 import os
 import logging
-from typing import Callable
+from typing import Callable, Optional
 
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 import joblib
 
 import churn_library as cls
@@ -153,7 +154,7 @@ def test_encoder_helper(
 
 def test_perform_feature_engineering(
         perform_feature_engineering: Callable[
-            [pd.DataFrame, list, list, str],
+            [pd.DataFrame, list, list, Optional[str]],
             tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]
         ]
 ):
@@ -320,7 +321,12 @@ def test_train_models(
         raise err
 
 
-def test_feature_importance_plot(feature_importance_plot: Callable):
+def test_feature_importance_plot(
+        feature_importance_plot: Callable[
+            [RandomForestClassifier, pd.DataFrame, str],
+            None
+        ]
+):
     """ test for feature_importance_plot function
 
     Parameters
@@ -388,6 +394,15 @@ def test_feature_importance_plot(feature_importance_plot: Callable):
             "Testing feature_importance_plot: %s", err
         )
         raise err
+    except AssertionError as err:
+        logging.error(
+            "Testing feature_importance_plot: %s", err
+        )
+        raise err
+
+    try:
+        assert os.path.exists("./images/feature_importance.png"), \
+            "The file ./images/feature_importance.png was not generated"
     except AssertionError as err:
         logging.error(
             "Testing feature_importance_plot: %s", err
