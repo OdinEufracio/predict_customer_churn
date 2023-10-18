@@ -21,18 +21,22 @@ logging.basicConfig(
 )
 
 
-def test_import(import_data: Callable):
+def test_import(
+        import_data: Callable[[str], pd.DataFrame]
+):
     """test for import_data function
 
     Parameters
     ----------
-    import_data : str
-        path to the csv file
+    import_data : Callable[[str], pd.DataFrame]
+        function to import data
 
     Raises
     ------
-    err : FileNotFoundError, AssertionError
-        File not found error or assertion error
+    err : FileNotFoundError
+        File not found error while reading it dataframe
+    err : AssertionError
+        File does not have any rows or columns
     """
 
     try:
