@@ -225,27 +225,136 @@ def perform_feature_engineering(
     return X_train, X_test, y_train, y_test
 
 
-def classification_report_image(y_train,
-                                y_test,
-                                y_train_preds_lr,
-                                y_train_preds_rf,
-                                y_test_preds_lr,
-                                y_test_preds_rf):
-    '''
-    produces classification report for training and testing results and stores report as image
-    in images folder
-    input:
-            y_train: training response values
-            y_test:  test response values
-            y_train_preds_lr: training predictions from logistic regression
-            y_train_preds_rf: training predictions from random forest
-            y_test_preds_lr: test predictions from logistic regression
-            y_test_preds_rf: test predictions from random forest
+def classification_report_image(
+        y_train: pd.Series,
+        y_test: pd.Series,
+        y_train_preds_lr: pd.Series,
+        y_train_preds_rf: pd.Series,
+        y_test_preds_lr: pd.Series,
+        y_test_preds_rf: pd.Series
+) -> None:
+    """plot classification report and save to ./images/classification_report.png
 
-    output:
-             None
-    '''
-    pass
+    Parameters
+    ----------
+    y_train : pd.Series
+        training response data
+    y_test : pd.Series
+        testing response data
+    y_train_preds_lr : pd.Series
+        training response data from logistic regression model
+    y_train_preds_rf : pd.Series
+       training response data from random forest model
+    y_test_preds_lr : pd.Series
+        testing response data from logistic regression model
+    y_test_preds_rf : pd.Series
+        testing response data from random forest model
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    TypeError
+        if any of the input parameters are not of the expected type
+    AssertionError
+        if any of the input parameters are empty
+    """
+
+    if not isinstance(y_train, pd.Series):
+        raise TypeError("y_train should be a pandas Series")
+    if not isinstance(y_test, pd.Series):
+        raise TypeError("y_test should be a pandas Series")
+    if not isinstance(y_train_preds_lr, pd.Series):
+        raise TypeError("y_train_preds_lr should be a pandas Series")
+    if not isinstance(y_train_preds_rf, pd.Series):
+        raise TypeError("y_train_preds_rf should be a pandas Series")
+    if not isinstance(y_test_preds_lr, pd.Series):
+        raise TypeError("y_test_preds_lr should be a pandas Series")
+    if not isinstance(y_test_preds_rf, pd.Series):
+        raise TypeError("y_test_preds_rf should be a pandas Series")
+
+    assert not y_train.empty, \
+        "y_train should not be empty"
+    assert not y_test.empty, \
+        "y_test should not be empty"
+    assert not y_train_preds_lr.empty, \
+        "y_train_preds_lr should not be empty"
+    assert not y_train_preds_rf.empty, \
+        "y_train_preds_rf should not be empty"
+    assert not y_test_preds_lr.empty, \
+        "y_test_preds_lr should not be empty"
+    assert not y_test_preds_rf.empty, \
+        "y_test_preds_rf should not be empty"
+
+    plt.rc('figure', figsize=(10, 10))
+
+    plt.text(
+        0.01,
+        1.5,
+        str('Logistic Regression Train'),
+        {'fontsize': 10},
+        fontproperties='monospace'
+    )
+    plt.text(
+        0.01,
+        1.3,
+        str(classification_report(y_train, y_train_preds_lr)),
+        {'fontsize': 10},
+        fontproperties='monospace'
+    )
+
+    plt.text(
+        0.01,
+        1.2,
+        str('Logistic Regression Test'),
+        {'fontsize': 10},
+        fontproperties='monospace'
+    )
+    plt.text(
+        0.01,
+        1.0,
+        str(classification_report(y_test, y_test_preds_lr)),
+        {'fontsize': 10},
+        fontproperties='monospace'
+    )
+
+    plt.text(
+        0.01,
+        0.9,
+        str('Random Forest  Train'),
+        {'fontsize': 10},
+        fontproperties='monospace'
+    )
+    plt.text(
+        0.01,
+        0.7,
+        str(classification_report(y_train, y_train_preds_rf)),
+        {'fontsize': 10},
+        fontproperties='monospace'
+    )
+
+    plt.text(
+        0.01,
+        0.6,
+        str('Random Forest  Test'),
+        {'fontsize': 10},
+        fontproperties='monospace'
+    )
+    plt.text(
+        0.01,
+        0.4,
+        str(classification_report(y_test, y_test_preds_rf)),
+        {'fontsize': 10},
+        fontproperties='monospace'
+    )
+
+    plt.axis('off')
+    plt.savefig(
+        './images/classification_report.png',
+        bbox_inches='tight'
+    )
 
 
 def feature_importance_plot(

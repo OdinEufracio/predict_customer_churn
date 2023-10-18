@@ -4,6 +4,7 @@ import logging
 from typing import Callable
 
 import churn_library as cls
+import pandas as pd
 
 logging.basicConfig(
     filename='./logs/churn_library.log',
@@ -283,10 +284,83 @@ def test_feature_importance_plot(feature_importance_plot: Callable):
         raise err
 
 
+def test_classification_report_image(classification_report_image: Callable):
+
+    try:
+        df = cls.import_data("./data/bank_data.csv")
+        df = cls.add_chrun_column(df.copy())
+
+        category_columns = [
+            ("Gender", "Gender_Churn"),
+            ("Education_Level", "Education_Level_Churn"),
+            ("Marital_Status", "Marital_Status_Churn"),
+            ("Income_Category", "Income_Category_Churn"),
+            ("Card_Category", "Card_Category_Churn"),
+        ]
+
+        keep_cols = [
+            "Customer_Age",
+            "Dependent_count",
+            "Months_on_book",
+            "Total_Relationship_Count",
+            "Months_Inactive_12_mon",
+            "Contacts_Count_12_mon",
+            "Credit_Limit",
+            "Total_Revolving_Bal",
+            "Avg_Open_To_Buy",
+            "Total_Amt_Chng_Q4_Q1",
+            "Total_Trans_Amt",
+            "Total_Trans_Ct",
+            "Total_Ct_Chng_Q4_Q1",
+            "Avg_Utilization_Ratio",
+            "Gender_Churn",
+            "Education_Level_Churn",
+            "Marital_Status_Churn",
+            "Income_Category_Churn",
+            "Card_Category_Churn",
+        ]
+
+        X_train, X_test, y_train, y_test = cls.perform_feature_engineering(
+            df.copy(),
+            category_columns,
+            keep_cols,
+        )
+
+        rfc_model = joblib.load('./models/rfc_model.pkl')
+        lrc_model = joblib.load('./models/lrc_model.pkl')
+
+        y_train_preds_rfc = pd.Series(rfc_model.predict(X_train))
+        y_test_preds_rfc = pd.Series(rfc_model.predict(X_test))
+
+        y_train_preds_lrc = pd.Series(lrc_model.predict(X_train))
+        y_test_preds_lrc = pd.Series(lrc_model.predict(X_test))
+
+        classification_report_image(
+            y_train,
+            y_test,
+            y_train_preds_lrc,
+            y_train_preds_rfc,
+            y_test_preds_lrc,
+            y_test_preds_rfc,
+        )
+
+        logging.info("Testing classification_report_image: SUCCESS")
+    except TypeError as err:
+        logging.error(
+            "Testing classification_report_image: %s", err
+        )
+        raise err
+    except AssertionError as err:
+        logging.error(
+            "Testing classification_report_image: %s", err
+        )
+
+
 if __name__ == "__main__":
     #test_import(cls.import_data)
     #test_eda(cls.perform_eda)
     #test_encoder_helper(cls.encoder_helper)
     #test_perform_feature_engineering(cls.perform_feature_engineering)
     #test_train_models(cls.train_models)
-    test_feature_importance_plot(cls.feature_importance_plot)
+    #test_feature_importance_plot(cls.feature_importance_plot)
+    test_classification_report_image(cls.classification_report_image)
