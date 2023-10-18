@@ -60,7 +60,7 @@ def test_eda(perform_eda: Callable):
     """
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_chrun_column(df.copy())
+        df = cls.add_churn_column(df.copy())
         
         cls.perform_eda(df)
         logging.info("Testing perform_eda: SUCCESS")
@@ -99,7 +99,7 @@ def test_encoder_helper(encoder_helper: Callable):
 
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_chrun_column(df.copy())
+        df = cls.add_churn_column(df.copy())
 
         df = encoder_helper(
             df.copy(),
@@ -152,7 +152,7 @@ def test_perform_feature_engineering(perform_feature_engineering):
 
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_chrun_column(df.copy())
+        df = cls.add_churn_column(df.copy())
 
         X_train, X_test, y_train, y_test = perform_feature_engineering(
             df.copy(),
@@ -170,7 +170,7 @@ def test_perform_feature_engineering(perform_feature_engineering):
 def test_train_models(train_models):
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_chrun_column(df.copy())
+        df = cls.add_churn_column(df.copy())
 
         category_columns = [
             ("Gender", "Gender_Churn"),
@@ -225,7 +225,7 @@ def test_train_models(train_models):
 def test_feature_importance_plot(feature_importance_plot: Callable):
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_chrun_column(df.copy())
+        df = cls.add_churn_column(df.copy())
 
         category_columns = [
             ("Gender", "Gender_Churn"),
@@ -288,7 +288,7 @@ def test_classification_report_image(classification_report_image: Callable):
 
     try:
         df = cls.import_data("./data/bank_data.csv")
-        df = cls.add_chrun_column(df.copy())
+        df = cls.add_churn_column(df.copy())
 
         category_columns = [
             ("Gender", "Gender_Churn"),

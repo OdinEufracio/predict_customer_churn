@@ -1,4 +1,10 @@
-# library doc string
+"""
+Module that implements the functions to perform EDA, feature engineering,
+model training and model evaluation
+
+Author: Odin Eufracio
+Date:   Oct 2023
+"""
 
 
 # import libraries
@@ -16,9 +22,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import plot_roc_curve, classification_report
 
-os.environ['QT_QPA_PLATFORM'] = 'offscreen'
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
 sns.set()
-
 
 
 def import_data(pth: str) -> pd.DataFrame:
@@ -38,7 +43,7 @@ def import_data(pth: str) -> pd.DataFrame:
     return data_df
 
 
-def add_chrun_column(df: pd.DataFrame) -> pd.DataFrame:
+def add_churn_column(df: pd.DataFrame) -> pd.DataFrame:
     """ add churn column to the dataframe
 
     Parameters
@@ -46,11 +51,10 @@ def add_chrun_column(df: pd.DataFrame) -> pd.DataFrame:
     df : pd.DataFrame
         pandas dataframe containing the data
     """
-    df['Churn'] = df['Attrition_Flag'].apply(
+    df["Churn"] = df["Attrition_Flag"].apply(
         lambda val: 0 if val == "Existing Customer" else 1
-        )
+    )
     return df
-
 
 
 def perform_eda(df: pd.DataFrame) -> None:
@@ -72,33 +76,33 @@ def perform_eda(df: pd.DataFrame) -> None:
         "Customer_Age",
         "Marital_Status",
         "Total_Trans_Ct",
-        ]
+    ]
     for col in required_columns:
         if col not in df.columns:
             raise ValueError(f"Expected column '{col}' not found in DataFrame")
-    
+
     if not os.path.exists("images"):
         os.mkdir("images")
-    
-    plt.figure(figsize=(20,10)) 
+
+    plt.figure(figsize=(20, 10))
     df["Churn"].hist()
     plt.savefig("./images/eda_churn.png")
 
-    plt.figure(figsize=(20,10)) 
+    plt.figure(figsize=(20, 10))
     df["Customer_Age"].hist()
     plt.savefig("./images/eda_customer_age.png")
 
-    plt.figure(figsize=(20,10)) 
+    plt.figure(figsize=(20, 10))
     df["Marital_Status"].value_counts("normalize").plot(kind="bar")
     plt.savefig("./images/eda_marital_status.png")
 
-    plt.figure(figsize=(20,10))
+    plt.figure(figsize=(20, 10))
     sns.histplot(df["Total_Trans_Ct"], stat="density", kde=True)
     plt.savefig("./images/eda_total_trans_ct.png")
 
-    plt.figure(figsize=(20,10))
+    plt.figure(figsize=(20, 10))
     df_only_numeric = df.select_dtypes(include=["float64", "int64"]).corr()
-    sns.heatmap(df_only_numeric, annot=False, cmap="Dark2_r", linewidths = 2)
+    sns.heatmap(df_only_numeric, annot=False, cmap="Dark2_r", linewidths=2)
     plt.savefig("./images/eda_corr_heatmap.png")
 
 
@@ -160,7 +164,8 @@ def encoder_helper(
             raise ValueError(f"Expected column '{col}' not found in DataFrame")
 
     if response not in df.columns:
-        raise ValueError(f"Expected column '{response}' not found in DataFrame")
+        raise ValueError(
+            f"Expected column '{response}' not found in DataFrame")
 
     for col, new_col in category_lst:
         df[new_col] = target_encoding(df, col, response)
@@ -170,7 +175,7 @@ def encoder_helper(
 
 def perform_feature_engineering(
         df: pd.DataFrame,
-        categorial_columns:  list,
+        categorial_columns: list,
         keep_cols: list,
         response: str = "Churn",
 ) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame):
@@ -288,72 +293,72 @@ def classification_report_image(
     assert not y_test_preds_rf.empty, \
         "y_test_preds_rf should not be empty"
 
-    plt.rc('figure', figsize=(10, 10))
+    plt.rc("figure", figsize=(10, 10))
 
     plt.text(
         0.01,
         1.5,
-        str('Logistic Regression Train'),
-        {'fontsize': 10},
-        fontproperties='monospace'
+        str("Logistic Regression Train"),
+        {"fontsize": 10},
+        fontproperties="monospace"
     )
     plt.text(
         0.01,
         1.3,
         str(classification_report(y_train, y_train_preds_lr)),
-        {'fontsize': 10},
-        fontproperties='monospace'
+        {"fontsize": 10},
+        fontproperties="monospace"
     )
 
     plt.text(
         0.01,
         1.2,
-        str('Logistic Regression Test'),
-        {'fontsize': 10},
-        fontproperties='monospace'
+        str("Logistic Regression Test"),
+        {"fontsize": 10},
+        fontproperties="monospace"
     )
     plt.text(
         0.01,
         1.0,
         str(classification_report(y_test, y_test_preds_lr)),
-        {'fontsize': 10},
-        fontproperties='monospace'
+        {"fontsize": 10},
+        fontproperties="monospace"
     )
 
     plt.text(
         0.01,
         0.9,
-        str('Random Forest  Train'),
-        {'fontsize': 10},
-        fontproperties='monospace'
+        str("Random Forest Train"),
+        {"fontsize": 10},
+        fontproperties="monospace"
     )
     plt.text(
         0.01,
         0.7,
         str(classification_report(y_train, y_train_preds_rf)),
-        {'fontsize': 10},
-        fontproperties='monospace'
+        {"fontsize": 10},
+        fontproperties="monospace"
     )
 
     plt.text(
         0.01,
         0.6,
-        str('Random Forest  Test'),
-        {'fontsize': 10},
-        fontproperties='monospace'
+        str("Random Forest Test"),
+        {"fontsize": 10},
+        fontproperties="monospace"
     )
     plt.text(
         0.01,
         0.4,
         str(classification_report(y_test, y_test_preds_rf)),
-        {'fontsize': 10},
-        fontproperties='monospace'
+        {"fontsize": 10},
+        fontproperties="monospace"
     )
 
-    plt.axis('off')
+    plt.axis("off")
     plt.savefig(
-        './images/classification_report.png',
-        bbox_inches='tight'
+        "./images/classification_report.png",
+        bbox_inches="tight"
     )
 
 
@@ -386,7 +391,6 @@ def feature_importance_plot(
     assert len(X_data.columns) == len(model.feature_importances_), \
         "X_data columns should be equal to model feature importances"
 
-
     importances = model.feature_importances_
 
     indices = np.argsort(importances)[::-1]
@@ -394,12 +398,11 @@ def feature_importance_plot(
 
     plt.figure(figsize=(20, 5))
     plt.title("Feature Importance")
-    plt.ylabel('Importance')
+    plt.ylabel("Importance")
     plt.bar(range(X_data.shape[1]), importances[indices])
     plt.xticks(range(X_data.shape[1]), names, rotation=90)
     plt.tight_layout()
     plt.savefig(output_pth)
-
 
 
 def train_models(
@@ -448,7 +451,6 @@ def train_models(
     assert not y_train.empty, "y_train should not be empty"
     assert not y_test.empty, "y_test should not be empty"
 
-
     # Random Forest Classifier
     rfc = RandomForestClassifier(random_state=42)
     param_grid = {
@@ -482,12 +484,12 @@ def train_models(
     plt.figure(figsize=(15, 8))
     ax = plt.gca()
 
-    rfc_plot = plot_roc_curve(
+    plot_roc_curve(
         cv_rfc.best_estimator_,
         X_test,
         y_test,
         ax=ax,
-        alpha=0.8
+        **{"alpha": 0.8}
     )
 
     lrc_plot.plot(ax=ax, alpha=0.8)
