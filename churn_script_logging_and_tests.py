@@ -67,19 +67,16 @@ def test_eda(
 
     Raises
     ------
-    err: FileNotFoundError
-        File not found error while reading it dataframe
     err: ValueError
         missing required columns while performing eda
+    err: AssertionError
+        Plots were not generated
     """
     try:
         df = cls.import_data("./data/bank_data.csv")
 
         perform_eda(df)
         logging.info("Testing perform_eda: SUCCESS")
-    except FileNotFoundError as err:
-        logging.error("Testing perform_eda: The file wasn't found")
-        raise err
     except ValueError as err:
         logging.error("Testing perform_eda: %s", err)
         raise err
