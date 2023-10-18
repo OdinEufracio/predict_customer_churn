@@ -7,6 +7,7 @@ Date: Oct 2023
 import os
 import logging
 from typing import Callable, Optional
+from collections import namedtuple
 
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -19,6 +20,18 @@ logging.basicConfig(
     level=logging.INFO,
     filemode="w",
     format="%(name)s - %(levelname)s - %(message)s"
+)
+
+Responses = namedtuple(
+    'Responses',
+    [
+        'y_train',
+        'y_test',
+        'y_train_preds_lr',
+        'y_train_preds_rf',
+        'y_test_preds_lr',
+        'y_test_preds_rf'
+    ]
 )
 
 
@@ -374,7 +387,7 @@ def test_feature_importance_plot(
             "Card_Category_Churn",
         ]
 
-        X_train, X_test, y_train, y_test = cls.perform_feature_engineering(
+        _, X_test, _, _ = cls.perform_feature_engineering(
             df.copy(),
             category_columns,
             keep_cols,
@@ -411,10 +424,7 @@ def test_feature_importance_plot(
 
 
 def test_classification_report_image(
-        classification_report_image: Callable[
-            [pd.Series, pd.Series, pd.Series, pd.Series, pd.Series, pd.Series],
-            None
-        ]
+        classification_report_image: Callable[[Responses], None]
 ):
     """ test for classification_report_image function
 
@@ -479,14 +489,14 @@ def test_classification_report_image(
         y_train_preds_lrc = pd.Series(lrc_model.predict(X_train))
         y_test_preds_lrc = pd.Series(lrc_model.predict(X_test))
 
-        classification_report_image(
+        classification_report_image(Responses(
             y_train,
             y_test,
             y_train_preds_lrc,
             y_train_preds_rfc,
             y_test_preds_lrc,
-            y_test_preds_rfc,
-        )
+            y_test_preds_rfc
+        ))
 
         logging.info("Testing classification_report_image: SUCCESS")
     except TypeError as err:

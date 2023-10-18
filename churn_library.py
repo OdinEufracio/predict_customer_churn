@@ -9,21 +9,33 @@ Date:   Oct 2023
 
 # import libraries
 import os
-import joblib
+from collections import namedtuple
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import plot_roc_curve, classification_report
+import joblib
 
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 sns.set()
+
+Responses = namedtuple(
+    'Responses',
+    [
+        'y_train',
+        'y_test',
+        'y_train_preds_lr',
+        'y_train_preds_rf',
+        'y_test_preds_lr',
+        'y_test_preds_rf'
+    ]
+)
 
 
 def import_data(pth: str) -> pd.DataFrame:
@@ -223,29 +235,20 @@ def perform_feature_engineering(
 
 
 def classification_report_image(
-        y_train: pd.Series,
-        y_test: pd.Series,
-        y_train_preds_lr: pd.Series,
-        y_train_preds_rf: pd.Series,
-        y_test_preds_lr: pd.Series,
-        y_test_preds_rf: pd.Series
+        responses: Responses
 ) -> None:
     """plot classification report and save to ./images/classification_report.png
 
     Parameters
     ----------
-    y_train : pd.Series
-        training response data
-    y_test : pd.Series
-        testing response data
-    y_train_preds_lr : pd.Series
-        training response data from logistic regression model
-    y_train_preds_rf : pd.Series
-       training response data from random forest model
-    y_test_preds_lr : pd.Series
-        testing response data from logistic regression model
-    y_test_preds_rf : pd.Series
-        testing response data from random forest model
+    responses : Responses
+        namedtuple containing the responses, all of them are pandas Series:
+        y_train,
+        y_test,
+        y_train_preds_lr,
+        y_train_preds_rf,
+        y_test_preds_lr,
+        y_test_preds_rf
 
     Returns
     -------
@@ -259,30 +262,30 @@ def classification_report_image(
         if any of the input parameters are empty
     """
 
-    if not isinstance(y_train, pd.Series):
+    if not isinstance(responses.y_train, pd.Series):
         raise TypeError("y_train should be a pandas Series")
-    if not isinstance(y_test, pd.Series):
+    if not isinstance(responses.y_test, pd.Series):
         raise TypeError("y_test should be a pandas Series")
-    if not isinstance(y_train_preds_lr, pd.Series):
+    if not isinstance(responses.y_train_preds_lr, pd.Series):
         raise TypeError("y_train_preds_lr should be a pandas Series")
-    if not isinstance(y_train_preds_rf, pd.Series):
+    if not isinstance(responses.y_train_preds_rf, pd.Series):
         raise TypeError("y_train_preds_rf should be a pandas Series")
-    if not isinstance(y_test_preds_lr, pd.Series):
+    if not isinstance(responses.y_test_preds_lr, pd.Series):
         raise TypeError("y_test_preds_lr should be a pandas Series")
-    if not isinstance(y_test_preds_rf, pd.Series):
+    if not isinstance(responses.y_test_preds_rf, pd.Series):
         raise TypeError("y_test_preds_rf should be a pandas Series")
 
-    assert not y_train.empty, \
+    assert not responses.y_train.empty, \
         "y_train should not be empty"
-    assert not y_test.empty, \
+    assert not responses.y_test.empty, \
         "y_test should not be empty"
-    assert not y_train_preds_lr.empty, \
+    assert not responses.y_train_preds_lr.empty, \
         "y_train_preds_lr should not be empty"
-    assert not y_train_preds_rf.empty, \
+    assert not responses.y_train_preds_rf.empty, \
         "y_train_preds_rf should not be empty"
-    assert not y_test_preds_lr.empty, \
+    assert not responses.y_test_preds_lr.empty, \
         "y_test_preds_lr should not be empty"
-    assert not y_test_preds_rf.empty, \
+    assert not responses.y_test_preds_rf.empty, \
         "y_test_preds_rf should not be empty"
 
     plt.figure(figsize=(8, 10))
@@ -297,7 +300,7 @@ def classification_report_image(
     plt.text(
         0.01,
         1.3,
-        str(classification_report(y_train, y_train_preds_lr)),
+        str(classification_report(responses.y_train, responses.y_train_preds_lr)),
         {"fontsize": 10},
         fontproperties="monospace"
     )
@@ -312,7 +315,7 @@ def classification_report_image(
     plt.text(
         0.01,
         1.0,
-        str(classification_report(y_test, y_test_preds_lr)),
+        str(classification_report(responses.y_test, responses.y_test_preds_lr)),
         {"fontsize": 10},
         fontproperties="monospace"
     )
@@ -327,7 +330,7 @@ def classification_report_image(
     plt.text(
         0.01,
         0.7,
-        str(classification_report(y_train, y_train_preds_rf)),
+        str(classification_report(responses.y_train, responses.y_train_preds_rf)),
         {"fontsize": 10},
         fontproperties="monospace"
     )
@@ -342,7 +345,7 @@ def classification_report_image(
     plt.text(
         0.01,
         0.4,
-        str(classification_report(y_test, y_test_preds_rf)),
+        str(classification_report(responses.y_test, responses.y_test_preds_rf)),
         {"fontsize": 10},
         fontproperties="monospace"
     )
