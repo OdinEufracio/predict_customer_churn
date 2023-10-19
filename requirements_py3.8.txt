@@ -15,5 +15,5 @@ pandas
 numpy
 matplotlib
 seaborn
-pylint
+pylint==3.0.1
 autopep8

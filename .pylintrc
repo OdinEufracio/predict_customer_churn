@@ -1,2 +1,2 @@
 [BASIC]
-good-names=...,X, X_data,X_train,X_test,y_train,y_test
+good-names=...,X, X_data,X_train,X_test,y_train,y_test,df,y,ax
