@@ -6,7 +6,7 @@ Date: Oct 2023
 """
 import os
 import logging
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 from collections import namedtuple
 
 import pandas as pd
@@ -168,7 +168,7 @@ def test_encoder_helper(
 def test_perform_feature_engineering(
         perform_feature_engineering: Callable[
             [pd.DataFrame, list, list, Optional[str]],
-            tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]
+            Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]
         ]
 ):
     """ test for perform_feature_engineering function
